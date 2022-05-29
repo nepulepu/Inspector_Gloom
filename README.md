@@ -9,11 +9,15 @@ TODO:
 
 [] Preprocess text
 
+[] Feature Extraction - Word Embedding (gloVe / word2Vec)
+
+[] Creating the model
+
 2. Classification using Demographic Data
 
 [] EDA to check for data quality and check for column correlation with the target variable
 
-[] Feature engineering (drop columns, check missing values) and Word Embedding (gloVe / word2Vec)
+[] Feature engineering (drop columns, check missing values)
 
 [] Feature scaling if necessary
 
