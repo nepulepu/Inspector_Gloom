@@ -3,7 +3,7 @@ assignment projects for Machine Learning course
 ### WID3006 Group Assigment - Depression Indicator Chat Bot
 
 TODO:
-1. Text Classification on Tweets
+1. Text Classification
 
 [] Change the labels from suicide/non-suicide to depression/non-depression
 
