@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+
+	<header>
+		<div class="container">
+		<div id="brandname">
+			NLP App
+		</div>
+		<h2 style="text-align: center;">Depression Detection on Tweets</h2>
+		
+	</div>
+	</header>
+	<p style="color:blue;font-size:40;text-align: center;"><b>We predict that you are</b></p>
+	<div class="results">
+
+
+		
+	{% if ('depressed' == prediction[0]) %}
+	<h2 style="color:red;text-align: center;">depressed😅<br>Confidence: {{(prediction[1])}}</h2>
+	{% elif ('non-depressed' == prediction[0])  %}
+	<h2 style="color:blue;text-align: center;">not depressed!😀😀💩<br>Confidence: {{(prediction[1])}}</h2>
+	{% else %}
+	<h2 style="color:green;text-align: center;">HONESTLY IDK</h2>
+	{% endif %}
+
+	</div>
+
+</body>
+</html>
