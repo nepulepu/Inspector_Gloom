@@ -21,9 +21,9 @@
 
 		
 	{% if ('depressed' == prediction[0]) %}
-	<h2 style="color:red;text-align: center;">depressed😅<br>Confidence: {{(prediction[1])}}</h2>
+	<h2 style="color:red;text-align: center;">depressed😅<br>Confidence: {{(1-prediction[1])}}</h2>
 	{% elif ('non-depressed' == prediction[0])  %}
-	<h2 style="color:blue;text-align: center;">not depressed!😀😀💩<br>Confidence: {{(1-prediction[1])}}</h2>
+	<h2 style="color:blue;text-align: center;">not depressed!😀😀💩<br>Confidence: {{(prediction[1])}}</h2>
 	{% else %}
 	<h2 style="color:green;text-align: center;">HONESTLY IDK</h2>
 	{% endif %}
