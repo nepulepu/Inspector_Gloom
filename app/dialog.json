@@ -1,14 +1,16 @@
-{
-  "name": {
+[
+  {
     "message": [
       "Hshs that's great! First, I'd like to get to know you. What should I call you?"
     ],
     "response_type": "text",
     "information_obtained": "name"
   },
-  "age": {
-    "message": ["Hi there <name>! It's a pleasure to meet you."],
-    "response_type": "text",
-    "information_obtained": "name"
+  {
+    "message": [
+      "Hi there <name>! It's a pleasure to meet you. Could you help fill more of your information to help us understand you better?"
+    ],
+    "response_type": "form",
+    "information_obtained": null
   }
-}
+]
