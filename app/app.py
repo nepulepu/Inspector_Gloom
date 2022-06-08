@@ -15,8 +15,6 @@ filler_replies = ["hshshs", "ehhhhh", "naim, nak code", "nepu tolong buatkan mak
 
 if not st.session_state:
     st.session_state["consented"] = False
-    # Add information that we want to save in here
-    st.session_state["collected_information"] = {"name": None}
 
     # Initialise the introduction message
     st.session_state["history"] = [
@@ -24,6 +22,30 @@ if not st.session_state:
 
     # Initialise the current bot message index
     st.session_state["reply_index"] = 0
+
+
+def handle_other_input():
+
+    current_key = st.session_state["reply_index"]
+
+    if current_key + 1 < len(script):
+
+        reply_options = script[current_key + 1]["message"]
+        next_reply = random.choice(reply_options)
+        contexts = re.findall("\<\w*\>", next_reply)
+
+        if len(contexts) > 0:
+            for context in contexts:
+                key = context[1:-1]
+                next_reply = re.sub(
+                    context, st.session_state[key], next_reply)
+
+    else:
+        next_reply = random.choice(filler_replies)
+
+    st.session_state.history.append(
+        {"message": next_reply, "is_user": False, "key": f"bot_{current_key}"})
+    st.session_state.reply_index = current_key + 1
 
 
 def handle_text_input():
@@ -38,8 +60,8 @@ def handle_text_input():
         expected_information = script[current_key]["information_obtained"]
 
         # Store the information for context and making predictions.
-        if expected_information in st.session_state["collected_information"]:
-            st.session_state["collected_information"][expected_information] = user_reply
+        if expected_information:
+            st.session_state[expected_information] = user_reply
 
         reply_options = script[current_key + 1]["message"]
         next_reply = random.choice(reply_options)
@@ -49,7 +71,7 @@ def handle_text_input():
             for context in contexts:
                 key = context[1:-1]
                 next_reply = re.sub(
-                    context, st.session_state["collected_information"][key], next_reply)
+                    context, st.session_state[key], next_reply)
 
     else:
         next_reply = random.choice(filler_replies)
@@ -86,17 +108,31 @@ else:
             st.text_input("Type your reply:", key="text_input",
                           on_change=handle_text_input)
 
+        # Generate the form to collect demographic data
         elif response_type == "form":
-            st.write("Form input required")
-            # with st.form("my_form"):
-            #     st.write("Inside the form")
-            #     slider_val = st.slider("Form slider")
-            #     checkbox_val = st.checkbox("Form checkbox")
+            with open("form_details.json") as detail_file:
+                form_details = json.load(detail_file)
+                key_list = list(form_details.keys())
 
-            #     # Every form must have a submit button.
-            #     submitted = st.form_submit_button("Submit")
-            #     if submitted:
-            #         st.write(st.session_state["my_form"])
+            with st.form("form_container"):
+                for key in key_list:
+                    field_type, question, options = form_details[key]["field_type"], form_details[
+                        key]["question"], form_details[key]["options"]
+
+                    if field_type == "selectbox":
+                        st.selectbox(question, options, key=key)
+
+                    elif field_type == "slider":
+                        st.slider(question, key=key)
+
+                submitted = st.form_submit_button(
+                    "Submit", on_click=handle_other_input)
+
+        elif response_type == "slider":
+            st.slider("Score", 0, 3,
+                      key=script[current_reply_index]["information_obtained"])
+            st.write("(0 = Did not apply to me at all, 1 = Applied to me to some degree, or some of the time, 2 = Applied to me to a considerable degree, or a good part of the time, 3 = Applied to me very much, or most of the time)")
+            submitted = st.button("Submit", on_click=handle_other_input)
 
     # If the end of the script is reached, allow the user to reply anything and reply with a choice from the filler list.
     # This theoretically should not happen but helps in error handling in case it does.

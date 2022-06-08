@@ -12,5 +12,36 @@
     ],
     "response_type": "form",
     "information_obtained": null
+  },
+  {
+    "message": [
+      "Awesome! It's nice to know more about you. I'd like to ask you a few more questions and get you to reply how you feel about them on a scale from 0 to 3. Firstly, do you feel like you can't experience any positive feeling at all?"
+    ],
+    "response_type": "slider",
+    "information_obtained": "q1"
+  },
+  {
+    "message": ["Next, have you felt like you couldn't get going?"],
+    "response_type": "slider",
+    "information_obtained": "q2"
+  },
+  {
+    "message": [
+      "Thirdly, have you felt like you had nothing to look forward to?"
+    ],
+    "response_type": "slider",
+    "information_obtained": "q3"
+  },
+  {
+    "message": ["Have you felt sad and depressed?"],
+    "response_type": "slider",
+    "information_obtained": "q4"
+  },
+  {
+    "message": [
+      "Furthermore, have you felt like you had nothing to look forward to?"
+    ],
+    "response_type": "slider",
+    "information_obtained": "q5"
   }
 ]
