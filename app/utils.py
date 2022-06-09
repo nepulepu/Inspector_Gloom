@@ -3,7 +3,11 @@ import random
 import re
 import json
 import pickle
-
+import nest_asyncio
+import twint
+import pandas as pd
+import numpy as np
+nest_asyncio.apply()
 
 def predict_depression_severity(data):
     data = data.copy()
@@ -31,8 +35,33 @@ def predict_depression_severity(data):
 
     return severity
 
-
 def predict_tweet_depression():
+    df = pd.read_csv("./Collected_Tweets.csv",encoding='latin-1')
+    scores = []
+    for i in range(3):
+        sentence = df["tweet"][i]
+        sentence_prediction = predict(sentence)
+        if(sentence_prediction[0]=="depressed"):
+            scores.append(1)
+        else:
+            scores.append(0)
+        
+    overall_mean = np.sum(scores)/3
+    
+    return overall_mean
+
+
+def scrape_tweets_to_csv(tweethandle):
+    tweethandle = tweethandle[1:]
+
+    c = twint.Config()
+    c.Username = str(tweethandle)
+    c.Custom["tweet"] = ["id","tweet"]
+    c.Store_csv = True
+    c.Limit = 20
+    c.Hide_output = True
+    c.Output = "Collected_Tweets.csv"
+
     return
 
 
