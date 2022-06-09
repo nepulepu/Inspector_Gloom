@@ -38,10 +38,68 @@
     "information_obtained": "q4"
   },
   {
-    "message": [
-      "Furthermore, have you felt like you had nothing to look forward to?"
-    ],
+    "message": ["Have you lacked interest in everything?"],
     "response_type": "slider",
     "information_obtained": "q5"
+  },
+  {
+    "message": [
+      "Furthermore, have you felt like you aren't worth much as a person?"
+    ],
+    "response_type": "slider",
+    "information_obtained": "q6"
+  },
+  {
+    "message": ["Have you felt like life wasn't worthwhile?"],
+    "response_type": "slider",
+    "information_obtained": "q7"
+  },
+  {
+    "message": ["When doing things, do you struggle to find enjoyment?"],
+    "response_type": "slider",
+    "information_obtained": "q8"
+  },
+  {
+    "message": ["Next, have you felt down-hearted and blue?"],
+    "response_type": "slider",
+    "information_obtained": "q9"
+  },
+  {
+    "message": [
+      "Have you found it hard to become enthusiastic about anything?"
+    ],
+    "response_type": "slider",
+    "information_obtained": "q10"
+  },
+  {
+    "message": ["Other than that, have you felt worthless?"],
+    "response_type": "slider",
+    "information_obtained": "q11"
+  },
+  {
+    "message": [
+      "When thinking about your future, have you felt like you could see nothing to be hopeful about?"
+    ],
+    "response_type": "slider",
+    "information_obtained": "q12"
+  },
+  {
+    "message": ["Have you felt that life was meaningless?"],
+    "response_type": "slider",
+    "information_obtained": "q13"
+  },
+  {
+    "message": [
+      "Lastly, have you found it difficult to work up the initiative to do things?"
+    ],
+    "response_type": "slider",
+    "information_obtained": "q14"
+  },
+  {
+    "message": [
+      "Thank you for answering those question, could I also ask you if you have a public Twitter account? If you do, pass your tweet handle down below. Otherwise, just type none."
+    ],
+    "response_type": "text",
+    "information_obtained": "twitter_handle"
   }
 ]
