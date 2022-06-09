@@ -9,5 +9,6 @@ tweet-preprocessor==0.6.0
 tensorflow==2.8.0
 keras==2.8.0
 flask==2.1.2
-
+twint==2.1.21
+nest-asyncio==1.5.1
 
