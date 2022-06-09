@@ -3,11 +3,12 @@ import random
 import re
 import json
 import pickle
-import nest_asyncio
+import asyncio
 import twint
 import pandas as pd
 import numpy as np
-nest_asyncio.apply()
+import requests
+
 
 def predict_depression_severity(data):
     data = data.copy()
@@ -25,44 +26,74 @@ def predict_depression_severity(data):
 
             data[key] = option_index
 
-    values = [list(data.values())]
+    values = list(data.values())
+    payload = {"data": values}
 
-    clf = pickle.load(
-        open("../models/dass_demography_lr_pipe_09062022.pkl", 'rb'))
+    # clf = pickle.load(
+    #     open("../models/dass_demography_lr_pipe_09062022.pkl", 'rb'))
 
-    prediction = clf.predict(values)[0]
-    severity = classes[prediction]
+    response = requests.post(
+        "http://127.0.0.1:5000/predict-dass", json=payload)
+    severity = response.json()["prediction"]
 
     return severity
 
-def predict_tweet_depression():
-    df = pd.read_csv("./Collected_Tweets.csv",encoding='latin-1')
+
+def predict_tweet_depression(tweethandle):
+    # df = pd.read_csv("./Collected_Tweets.csv", encoding='latin-1')
+
+    tweets = scrape_tweets(tweethandle)
+
+    pred_list = []
+
     scores = []
-    for i in range(3):
-        sentence = df["tweet"][i]
-        sentence_prediction = predict(sentence)
-        if(sentence_prediction[0]=="depressed"):
+    for tweet in tweets:
+        # sentence = df["tweet"][i]
+
+        body = {"message": tweet}
+        response = requests.post(
+            "http://127.0.0.1:5000/predict-tweet", json=body)
+
+        sentence_prediction = response.json()["prediction"]
+        pred_item = {
+            "Tweet": tweet, "Prediction": sentence_prediction[0], "Confidence": sentence_prediction[1]}
+
+        if sentence_prediction[0] == "depressed":
             scores.append(1)
         else:
             scores.append(0)
-        
-    overall_mean = np.sum(scores)/3
-    
-    return overall_mean
+
+        pred_list.append(pred_item)
+
+    overall_mean = np.sum(scores) / len(scores)
+    tweet_df = pd.DataFrame(pred_list)
+
+    return tweet_df, overall_mean
 
 
-def scrape_tweets_to_csv(tweethandle):
+def scrape_tweets(tweethandle):
     tweethandle = tweethandle[1:]
+    # nest_asyncio.apply()
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
 
     c = twint.Config()
     c.Username = str(tweethandle)
-    c.Custom["tweet"] = ["id","tweet"]
-    c.Store_csv = True
-    c.Limit = 20
+    # c.Custom["tweet"] = ["id", "tweet"]
+    # c.Store_csv = True
+    c.Limit = 50
+    c.Store_object = True
     c.Hide_output = True
-    c.Output = "Collected_Tweets.csv"
+    c.Media = False
+    c.Search = "-filter:replies"
+    # c.Output = "Collected_Tweets.csv"
+    twint.run.Search(c)
 
-    return
+    tweets = twint.output.tweets_list
+    tweet_list = [item.tweet for item in tweets]
+    tweets.clear()
+
+    return tweet_list
 
 
 def handle_user_input(**kwargs):

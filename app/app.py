@@ -3,11 +3,11 @@ from streamlit_chat import message as st_message
 import json
 import re
 import random
-from utils import handle_user_input, predict_depression_severity
+from utils import handle_user_input, predict_depression_severity, predict_tweet_depression
 import pandas as pd
 
 st.set_page_config(page_title="ManulBot")
-st.title("ManulBot")
+st.title("Johnny Depp-regression")
 
 with open("dialog.json", "r") as dialog_file:
     script = json.load(dialog_file)
@@ -115,3 +115,10 @@ else:
 
         predicted_severity = predict_depression_severity(data_dict)
         st.metric(label="Depression Severity", value=predicted_severity)
+
+        tweet_df, prediction = predict_tweet_depression(
+            st.session_state["twitter_handle"])
+
+        st.write("Most Recent Tweets")
+        st.dataframe(tweet_df)
+        st.metric(label="Depression Based on Recent Tweets", value=prediction)
