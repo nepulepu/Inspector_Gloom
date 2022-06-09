@@ -1,6 +1,39 @@
 import streamlit as st
 import random
 import re
+import json
+import pickle
+
+
+def predict_depression_severity(data):
+    data = data.copy()
+    classes = ["Normal", "Mild", "Moderate", "Severe", "Extremely Severe"]
+
+    with open("form_details.json") as form_detail_file:
+        form_details = json.load(form_detail_file)
+
+    keys = list(data.keys())
+
+    for key in keys:
+        if isinstance(data[key], str):
+            options = form_details[key]["options"]
+            option_index = options.index(data[key])
+
+            data[key] = option_index
+
+    values = [list(data.values())]
+
+    clf = pickle.load(
+        open("../models/dass_demography_lr_pipe_09062022.pkl", 'rb'))
+
+    prediction = clf.predict(values)[0]
+    severity = classes[prediction]
+
+    return severity
+
+
+def predict_tweet_depression():
+    return
 
 
 def handle_user_input(**kwargs):
@@ -13,7 +46,6 @@ def handle_user_input(**kwargs):
     """
 
     response_type, script, filler_replies = kwargs["response_type"], kwargs["script"], kwargs["filler_replies"]
-
     user_reply = None
 
     if response_type == "text":

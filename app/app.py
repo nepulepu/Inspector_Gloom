@@ -3,7 +3,8 @@ from streamlit_chat import message as st_message
 import json
 import re
 import random
-from utils import handle_user_input
+from utils import handle_user_input, predict_depression_severity
+import pandas as pd
 
 st.set_page_config(page_title="ManulBot")
 st.title("ManulBot")
@@ -13,6 +14,11 @@ with open("dialog.json", "r") as dialog_file:
 
 filler_replies = ["hshshs", "ehhhhh", "naim, nak code", "nepu tolong buatkan makasih",
                   "haihhhh", "jom fifa, ehhh jap ada update", "aku ni rajin sebenarnya"]
+
+personal_columns = ['education', 'urban', 'gender', 'engnat', 'age', 'hand', 'religion',
+                    'orientation', 'race', 'married', 'familysize', 'major']
+question_columns = ['q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'q8', 'q9',
+                    'q10', 'q11', 'q12', "q13", "q14"]
 
 if not st.session_state:
     st.session_state["consented"] = False
@@ -35,14 +41,16 @@ if not st.session_state["consented"]:
         st.experimental_rerun()
 
 else:
-    # Iterate over the chat history and render the message boxes.
-    for chat in st.session_state["history"]:
-        st_message(**chat)  # unpacking
 
     current_reply_index = st.session_state["reply_index"]
 
     # If the bot still has dialogs to reply, generate the reply fields accordingly.
     if current_reply_index < len(script):
+
+        # Iterate over the chat history and render the message boxes.
+        for chat in st.session_state["history"]:
+            st_message(**chat)  # unpacking
+
         response_type = script[current_reply_index]["response_type"]
 
         if response_type == "text":
@@ -56,31 +64,54 @@ else:
                 form_details = json.load(detail_file)
                 key_list = list(form_details.keys())
 
+            form_response = {}
+
             with st.form("form_container"):
                 for key in key_list:
                     field_type, question, options = form_details[key]["field_type"], form_details[
                         key]["question"], form_details[key]["options"]
 
                     if field_type == "selectbox":
-                        st.selectbox(question, options, key=key)
+                        form_response[key] = st.selectbox(
+                            question, options)
 
                     elif field_type == "slider":
-                        st.slider(question, key=key)
+                        form_response[key] = st.slider(question)
 
-                submitted = st.form_submit_button(
-                    "Submit", on_click=handle_user_input, kwargs={
-                        "response_type": response_type, "script": script, "filler_replies": filler_replies})
+                submitted = st.form_submit_button("Submit")
+
+                if submitted:
+                    for column in personal_columns:
+                        st.session_state[column] = form_response[column]
+
+                    handle_user_input(response_type=response_type,
+                                      script=script, filler_replies=filler_replies)
+                    st.experimental_rerun()
 
         elif response_type == "slider":
-            st.slider("Score", 0, 3,
-                      key=script[current_reply_index]["information_obtained"])
+            score = st.slider("Score", 0, 3)
             st.write("(0 = Did not apply to me at all, 1 = Applied to me to some degree, or some of the time, 2 = Applied to me to a considerable degree, or a good part of the time, 3 = Applied to me very much, or most of the time)")
 
-            submitted = st.button("Submit", on_click=handle_user_input, kwargs={
-                                  "response_type": response_type, "script": script, "filler_replies": filler_replies})
+            submitted = st.button("Submit")
 
-    # If the end of the script is reached, allow the user to reply anything and reply with a choice from the filler list.
-    # This theoretically should not happen but helps in error handling in case it does.
+            if submitted:
+                st.session_state[script[current_reply_index]
+                                 ["information_obtained"]] = score
+                handle_user_input(response_type=response_type,
+                                  script=script, filler_replies=filler_replies)
+                st.experimental_rerun()
+
+    # If the end of the script is reached, perform analysis and generate the results.
     else:
-        st.text_input("Type your reply:", key="text_input",
-                      on_change=handle_user_input, kwargs={"response_type": "text", "script": script, "filler_replies": filler_replies})
+        data_columns = personal_columns + question_columns
+        data_dict = {}
+
+        for column in data_columns:
+            data_dict[column] = st.session_state[column]
+
+        st.write("Entered information:")
+        df = pd.DataFrame(data_dict, index=[0])
+        st.dataframe(df)
+
+        predicted_severity = predict_depression_severity(data_dict)
+        st.metric(label="Depression Severity", value=predicted_severity)

@@ -52,7 +52,7 @@
       "Other"
     ]
   },
-  "otientation": {
+  "orientation": {
     "field_type": "selectbox",
     "question": "What is your sexual orientation?",
     "options": ["Heterosexual", "Bisexual", "Homosexual", "Asexual", "Other"]
