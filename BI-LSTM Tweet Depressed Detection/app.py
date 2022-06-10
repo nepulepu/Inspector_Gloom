@@ -34,12 +34,10 @@ def predict():
         preprocessed_input = Preprocessing(tokenizer, input)
         score = tweet_model.predict(preprocessed_input, verbose=1)
 
-        pred = ""
-        avg = np.sum(score)/score.size
-        if avg > 0.5:
-            pred = ("non-depressed", avg)
+        if score > 0.5:
+            pred = ("non-depressed", score)
         else:
-            pred = ("depressed", 1-avg)
+            pred = ("depressed", 1-score)
 
         return jsonify({'prediction': pred})
 
@@ -61,7 +59,7 @@ def predict_dass():
 
 if __name__ == '__main__':
     tweet_model = load_model(
-        "../models/depressed_detection_model2.h5")
+        "../models/depressed_detection_model_final.h5")
     df = pd.read_csv(
         "../models/Train_Data.csv")
 
