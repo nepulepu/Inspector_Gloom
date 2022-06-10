@@ -3,17 +3,14 @@ from streamlit_chat import message as st_message
 import json
 import re
 import random
-from utils import handle_user_input, predict_depression_severity, predict_tweet_depression
+from utils import slider_callback, text_callback, form_callback, predict_depression_severity, predict_tweet_depression
 import pandas as pd
 
-st.set_page_config(page_title="ManulBot")
-st.title("Johnny Depp-regression")
+st.set_page_config(page_title="Inspector Gloom")
+st.title("Inspector Gloom")
 
 with open("dialog.json", "r") as dialog_file:
     script = json.load(dialog_file)
-
-filler_replies = ["hshshs", "ehhhhh", "naim, nak code", "nepu tolong buatkan makasih",
-                  "haihhhh", "jom fifa, ehhh jap ada update", "aku ni rajin sebenarnya"]
 
 personal_columns = ['education', 'urban', 'gender', 'engnat', 'age', 'hand', 'religion',
                     'orientation', 'race', 'married', 'familysize', 'major']
@@ -55,8 +52,7 @@ else:
 
         if response_type == "text":
             st.text_input("Type your reply:", key="text_input",
-                          on_change=handle_user_input, kwargs={
-                              "response_type": response_type, "script": script, "filler_replies": filler_replies})
+                          on_change=text_callback, kwargs={"script": script})
 
         # Generate the form to collect demographic data
         elif response_type == "form":
@@ -64,42 +60,34 @@ else:
                 form_details = json.load(detail_file)
                 key_list = list(form_details.keys())
 
-            form_response = {}
-
             with st.form("form_container"):
                 for key in key_list:
                     field_type, question, options = form_details[key]["field_type"], form_details[
                         key]["question"], form_details[key]["options"]
 
                     if field_type == "selectbox":
-                        form_response[key] = st.selectbox(
+                        select_input = st.selectbox(
                             question, options)
+                        st.session_state[key] = select_input
 
                     elif field_type == "slider":
-                        form_response[key] = st.slider(question)
+                        slider_input = st.slider(question)
+                        st.session_state[key] = slider_input
 
-                submitted = st.form_submit_button("Submit")
-
-                if submitted:
-                    for column in personal_columns:
-                        st.session_state[column] = form_response[column]
-
-                    handle_user_input(response_type=response_type,
-                                      script=script, filler_replies=filler_replies)
-                    st.experimental_rerun()
+                submitted = st.form_submit_button(
+                    "Submit", on_click=form_callback, kwargs={"script": script})
 
         elif response_type == "slider":
-            score = st.slider("Score", 0, 3)
+            slider_key = script[st.session_state["reply_index"]
+                                ]["information_obtained"]
+            score = st.slider(
+                "Score", 0, 3)
             st.write("(0 = Did not apply to me at all, 1 = Applied to me to some degree, or some of the time, 2 = Applied to me to a considerable degree, or a good part of the time, 3 = Applied to me very much, or most of the time)")
 
-            submitted = st.button("Submit")
+            st.session_state[slider_key] = score
 
-            if submitted:
-                st.session_state[script[current_reply_index]
-                                 ["information_obtained"]] = score
-                handle_user_input(response_type=response_type,
-                                  script=script, filler_replies=filler_replies)
-                st.experimental_rerun()
+            submitted = st.button(
+                "Submit", on_click=slider_callback, kwargs={"script": script})
 
     # If the end of the script is reached, perform analysis and generate the results.
     else:

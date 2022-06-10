@@ -29,9 +29,6 @@ def predict_depression_severity(data):
     values = list(data.values())
     payload = {"data": values}
 
-    # clf = pickle.load(
-    #     open("../models/dass_demography_lr_pipe_09062022.pkl", 'rb'))
-
     response = requests.post(
         "http://127.0.0.1:5000/predict-dass", json=payload)
     severity = response.json()["prediction"]
@@ -96,21 +93,104 @@ def scrape_tweets(tweethandle):
     return tweet_list
 
 
-def handle_user_input(**kwargs):
-    """ Callback function to handle user input.
+def get_next_reply(reply_key, script):
+    """ General function to generate the next reply if there is one.
 
     Args:
-        **response_type (str): The response type.
-        **script (list): Script list.
-        **filler_replies (list): List of filler replies when the bot runs out of dialog.
+        reply_key (int): The index of the next reply.
+        script (list): Script list that contains dictionaries of responses.
     """
 
-    response_type, script, filler_replies = kwargs["response_type"], kwargs["script"], kwargs["filler_replies"]
+    reply_options = script[reply_key]["message"]
+    next_reply = random.choice(reply_options)
+
+    # Some messages may have things to fill in, eg. the user's name.
+    # This required substitution is represented using the <info> syntax, hence the regex pattern below is used.
+    contexts = re.findall("\<\w*\>", next_reply)
+
+    if len(contexts) > 0:
+        for context in contexts:
+            key = context[1:-1]
+            next_reply = re.sub(
+                context, st.session_state[key], next_reply)
+
+    return next_reply
+
+
+def slider_callback(**kwargs):
+    """ Callback function to handle independent slider input.
+
+    Args:
+        **script (list): Script list.
+
+    Note:
+        Compared to text input, the user's response in the form of their score is stored in the session state. Hence, the reply is generated from that value rather than the inverse in the text input.
+    """
+
+    script = kwargs["script"]
+    current_key = st.session_state["reply_index"]
     user_reply = None
 
-    if response_type == "text":
-        user_reply = st.session_state["text_input"]
+    if current_key < len(script):
 
+        # There should always be an expected reply in the form of the score submitted through the slider.
+        # This is the reply that is rendered as a chat bubble.
+        expected_information = script[current_key]["information_obtained"]
+        user_reply = st.session_state[expected_information]
+
+    next_reply = None
+
+    # If there are future replies, generate a reply using the script.
+    if current_key + 1 < len(script):
+        next_reply = get_next_reply(current_key + 1, script)
+
+    if user_reply:
+        st.session_state.history.append(
+            {"message": user_reply, "is_user": True, "key": f"user_{current_key}"})
+
+    if next_reply:
+        st.session_state.history.append(
+            {"message": next_reply, "is_user": False, "key": f"bot_{current_key}"})
+
+    st.session_state.reply_index = current_key + 1
+
+
+def form_callback(**kwargs):
+    """ Callback function to handle form input.
+
+    Args:
+        **script (list): Script list.
+
+    Note:
+        The current behaviour is when a form is filled, there is no reply generated from the user side and only the response values are stored in the session state.
+    """
+
+    script = kwargs["script"]
+    current_key = st.session_state["reply_index"]
+
+    next_reply = None
+
+    # If there are future replies, generate a reply using the script.
+    if current_key + 1 < len(script):
+        next_reply = get_next_reply(current_key + 1, script)
+
+    if next_reply:
+        st.session_state.history.append(
+            {"message": next_reply, "is_user": False, "key": f"bot_{current_key}"})
+
+    st.session_state.reply_index = current_key + 1
+
+
+def text_callback(**kwargs):
+    """ Callback function to handle text input.
+
+    Args:
+        **script (list): Script list.
+    """
+
+    script = kwargs["script"]
+
+    user_reply = st.session_state["text_input"]
     current_key = st.session_state["reply_index"]
 
     if current_key < len(script):
@@ -119,34 +199,21 @@ def handle_user_input(**kwargs):
         expected_information = script[current_key]["information_obtained"]
 
         # Store the information for context and making predictions.
-        if expected_information and response_type == "text":
+        if expected_information:
             st.session_state[expected_information] = user_reply
 
-        # Get the user reply based on the response stored in the state.
-        elif expected_information and response_type == "slider":
-            user_reply = str(st.session_state[expected_information])
+    next_reply = None
 
     # If there are future replies, generate a reply using the script.
     if current_key + 1 < len(script):
-        reply_options = script[current_key + 1]["message"]
-        next_reply = random.choice(reply_options)
-        contexts = re.findall("\<\w*\>", next_reply)
-
-        if len(contexts) > 0:
-            for context in contexts:
-                key = context[1:-1]
-                next_reply = re.sub(
-                    context, st.session_state[key], next_reply)
-
-    # Else, generate a random reply using the filler list.
-    else:
-        next_reply = random.choice(filler_replies)
+        next_reply = get_next_reply(current_key + 1, script)
 
     if user_reply:
         st.session_state.history.append(
             {"message": user_reply, "is_user": True, "key": f"user_{current_key}"})
 
-    st.session_state.history.append(
-        {"message": next_reply, "is_user": False, "key": f"bot_{current_key}"})
+    if next_reply:
+        st.session_state.history.append(
+            {"message": next_reply, "is_user": False, "key": f"bot_{current_key}"})
 
     st.session_state.reply_index = current_key + 1

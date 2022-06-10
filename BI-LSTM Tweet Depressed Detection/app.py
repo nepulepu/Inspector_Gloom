@@ -73,4 +73,6 @@ if __name__ == '__main__':
     dass_model = pickle.load(
         open("../models/dass_demography_lr_pipe_09062022.pkl", 'rb'))
 
-    app.run(debug=True)
+    app.run()
+    # Use the debug option below if you want to have live reloading when making changes.
+    # app.run(debug=True)
