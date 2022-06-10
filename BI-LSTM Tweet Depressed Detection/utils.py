@@ -49,8 +49,8 @@ def tweetcleaning(text):
     text = text.lower()
     text = p.clean(text)
     # # Converting text to array
-    # ar = []
-    # ar.append(text)
+    ar = []
+    ar.append(text)
     return text
 
 
