@@ -48,15 +48,15 @@ def clean_text(input):
 def tweetcleaning(text):
     text = text.lower()
     text = p.clean(text)
-    # Converting text to array
-    ar = []
-    ar.append(text)
-    return ar
+    # # Converting text to array
+    # ar = []
+    # ar.append(text)
+    return text
 
 
 def textpadding(tokenizer, input):
     # Converting the text to a list of numerical sequences and padding them with 50 as the maxlength
     sequence_input = tokenizer.texts_to_sequences(input)
-    x_input_pad = pad_sequences(sequence_input, maxlen=50)
+    x_input_pad = pad_sequences(sequence_input, maxlen=30)
 
     return x_input_pad
