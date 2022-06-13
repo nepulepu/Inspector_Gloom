@@ -35,4 +35,15 @@ This part of the assignment makes use of the public [Depression Anxiety Stress S
 [] Models to Test
 
 - Logistic Regression, SVM, xgboost, decision trees
-- Logistic regression seems to perform well on test set, try cross validation and new data to further test generalisation.
+- Logistic regression seems to perform well on test set, try cross validation and new data to further test generalisation
+
+### Running the Application
+
+1. Run the command `pip install -r requirements.txt` to install required modules.
+1. Download the models folder and place it in the root directory of this repo.
+1. Start the API by running the `app.py` script.
+1. Run the application using the following sequence of commands:
+   ```
+   cd app
+   streamlit run app.py
+   ```
