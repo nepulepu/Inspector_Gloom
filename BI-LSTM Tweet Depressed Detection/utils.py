@@ -51,7 +51,7 @@ def tweetcleaning(text):
     # # Converting text to array
     ar = []
     ar.append(text)
-    return text
+    return ar
 
 
 def textpadding(tokenizer, input):

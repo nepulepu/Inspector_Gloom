@@ -1,7 +1,7 @@
 [
   {
     "message": [
-      "Hshs that's great! First, I'd like to get to know you. What should I call you?"
+      "That's great! First, I'd like to get to know you. What should I call you?"
     ],
     "response_type": "text",
     "information_obtained": "name"

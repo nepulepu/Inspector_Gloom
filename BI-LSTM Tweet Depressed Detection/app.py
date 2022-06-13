@@ -32,7 +32,8 @@ def predict():
         # input = request.form['message']
         input = request.json["message"]
         preprocessed_input = Preprocessing(tokenizer, input)
-        score = tweet_model.predict(preprocessed_input, verbose=1)
+        score = tweet_model.predict(preprocessed_input, verbose=1)[0][0]
+        score = eval(str(score))
 
         if score > 0.5:
             pred = ("non-depressed", score)

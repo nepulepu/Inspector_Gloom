@@ -3,7 +3,7 @@ from streamlit_chat import message as st_message
 import json
 import re
 import random
-from utils import slider_callback, text_callback, form_callback, predict_depression_severity, predict_tweet_depression
+from utils import slider_callback, text_callback, form_callback, predict_depression_severity, predict_tweet_depression, highlight_rows
 import pandas as pd
 
 st.set_page_config(page_title="Inspector Gloom")
@@ -29,9 +29,10 @@ if not st.session_state:
 
 # If the user has not consented for data use in the app, direct them to a consent disclaimer first.
 if not st.session_state["consented"]:
-    consent_message = "I want to steal your data, do you agree?"
-    st_message(consent_message)
-    agree = st.button("Yes or Yes?")
+    consent_message = "Hi there! I'm Inspecter Gloom and I'm an application which could help to detect your depression severity and to identify if you have any signs of depression based on social media activity. In order to do that, I might need to obtain some personal information from you and also access your personal Twitter account if you have one. All of the data collected will not be saved for safety purposes. If you are agree please press the 'Proceed' button below."
+
+    st.info(consent_message)
+    agree = st.button("Proceed")
 
     if agree:
         st.session_state["consented"] = True
@@ -101,12 +102,29 @@ else:
         df = pd.DataFrame(data_dict, index=[0])
         st.dataframe(df)
 
+        severe_list = ["Moderate", "Severe", "Extremely Severe"]
         predicted_severity = predict_depression_severity(data_dict)
         st.metric(label="Depression Severity", value=predicted_severity)
 
-        tweet_df, prediction = predict_tweet_depression(
-            st.session_state["twitter_handle"])
+        if st.session_state["twitter_handle"].lower() != "none":
+            tweet_df, tweet_prediction = predict_tweet_depression(
+                st.session_state["twitter_handle"])
 
-        st.write("Most Recent Tweets")
-        st.dataframe(tweet_df)
-        st.metric(label="Depression Based on Recent Tweets", value=prediction)
+        if tweet_df is not None:
+            tweet_df = tweet_df.style.apply(highlight_rows, axis=1)
+            st.write("Most Recent Tweets")
+            st.dataframe(tweet_df)
+            st.metric(
+                label="Percentage of Recent Tweets with Depressive Tendencies", value=tweet_prediction)
+
+        with open("advice.json") as advice_file:
+            advice_options = json.load(advice_file)
+
+        if tweet_prediction > 0.5 and predicted_severity in severe_list:
+            st.info(advice_options["both_depressed"])
+
+        elif tweet_prediction < 0.5 and predicted_severity not in severe_list:
+            st.info(advice_options["none_depressed"])
+
+        else:
+            st.info(advice_options["one_depressed"])

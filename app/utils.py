@@ -10,6 +10,13 @@ import numpy as np
 import requests
 
 
+def highlight_rows(s):
+    if s["Prediction"] == "non-depressed":
+        return ['background-color: #04aa6d']*len(s)
+    elif s["Prediction"] == "depressed":
+        return ['background-color: #f44336']*len(s)
+
+
 def predict_depression_severity(data):
     data = data.copy()
     classes = ["Normal", "Mild", "Moderate", "Severe", "Extremely Severe"]
@@ -41,6 +48,9 @@ def predict_tweet_depression(tweethandle):
 
     tweets = scrape_tweets(tweethandle)
 
+    if tweets is None:
+        return None, 0
+
     pred_list = []
 
     scores = []
@@ -69,7 +79,10 @@ def predict_tweet_depression(tweethandle):
 
 
 def scrape_tweets(tweethandle):
-    tweethandle = tweethandle[1:]
+
+    if "@" in tweethandle:
+        tweethandle = tweethandle[1:]
+
     # nest_asyncio.apply()
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
@@ -84,13 +97,20 @@ def scrape_tweets(tweethandle):
     c.Media = False
     c.Search = "-filter:replies"
     # c.Output = "Collected_Tweets.csv"
-    twint.run.Search(c)
+    try:
+        twint.run.Search(c)
 
-    tweets = twint.output.tweets_list
-    tweet_list = [item.tweet for item in tweets]
-    tweets.clear()
+        tweets = twint.output.tweets_list
+        tweet_list = [item.tweet for item in tweets]
+        tweets.clear()
 
-    return tweet_list
+        return tweet_list
+
+    except:
+        st.warning(
+            "Unfortunately, that account doesn't exist and we were unable to scrape tweets.")
+
+        return None
 
 
 def get_next_reply(reply_key, script):
@@ -136,7 +156,7 @@ def slider_callback(**kwargs):
         # There should always be an expected reply in the form of the score submitted through the slider.
         # This is the reply that is rendered as a chat bubble.
         expected_information = script[current_key]["information_obtained"]
-        user_reply = st.session_state[expected_information]
+        user_reply = str(st.session_state[expected_information])
 
     next_reply = None
 
