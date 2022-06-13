@@ -9,7 +9,6 @@ spacy == 3.3.1
 streamlit == 1.9.2
 streamlit_chat == 0.0.2.1
 tweet_preprocessor == 0.6.0
-twint == 2.1.21
 matplotlib==3.4.3
 nltk==3.7
 tweet-preprocessor==0.6.0
