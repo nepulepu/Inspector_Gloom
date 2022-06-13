@@ -17,6 +17,12 @@ personal_columns = ['education', 'urban', 'gender', 'engnat', 'age', 'hand', 're
 question_columns = ['q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'q8', 'q9',
                     'q10', 'q11', 'q12', "q13", "q14"]
 
+
+def handle_form_input(kwargs):
+    key = kwargs["key"]
+    st.session_state[key] = st.session_state[key]
+
+
 if not st.session_state:
     st.session_state["consented"] = False
 
@@ -57,6 +63,7 @@ else:
 
         # Generate the form to collect demographic data
         elif response_type == "form":
+
             with open("form_details.json") as detail_file:
                 form_details = json.load(detail_file)
                 key_list = list(form_details.keys())
@@ -67,16 +74,18 @@ else:
                         key]["question"], form_details[key]["options"]
 
                     if field_type == "selectbox":
-                        select_input = st.selectbox(
-                            question, options)
+                        select_input = st.selectbox(question, options)
                         st.session_state[key] = select_input
 
                     elif field_type == "slider":
                         slider_input = st.slider(question)
                         st.session_state[key] = slider_input
 
-                submitted = st.form_submit_button(
-                    "Submit", on_click=form_callback, kwargs={"script": script})
+                submitted = st.form_submit_button("Submit")
+
+                if submitted:
+                    form_callback(script=script)
+                    st.experimental_rerun()
 
         elif response_type == "slider":
             slider_key = script[st.session_state["reply_index"]
