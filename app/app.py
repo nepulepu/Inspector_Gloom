@@ -17,12 +17,6 @@ personal_columns = ['education', 'urban', 'gender', 'engnat', 'age', 'hand', 're
 question_columns = ['q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'q8', 'q9',
                     'q10', 'q11', 'q12', "q13", "q14"]
 
-
-def handle_form_input(kwargs):
-    key = kwargs["key"]
-    st.session_state[key] = st.session_state[key]
-
-
 if not st.session_state:
     st.session_state["consented"] = False
 

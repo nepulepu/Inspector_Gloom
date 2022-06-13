@@ -60,9 +60,9 @@ def predict_dass():
 
 if __name__ == '__main__':
     tweet_model = load_model(
-        "../models/depressed_detection_model_final.h5")
+        "../../models/depressed_detection_model_final.h5")
     df = pd.read_csv(
-        "../models/Train_Data.csv")
+        "../../models/Train_Data.csv")
 
     df['text'] = df['text'].astype(str)
     # Tokenizer
@@ -70,7 +70,7 @@ if __name__ == '__main__':
     tokenizer.fit_on_texts(df['text'])
 
     dass_model = pickle.load(
-        open("../models/dass_demography_lr_pipe_13062022.pkl", 'rb'))
+        open("../../models/dass_demography_lr_pipe_13062022.pkl", 'rb'))
 
     app.run()
     # Use the debug option below if you want to have live reloading when making changes.
