@@ -29,7 +29,10 @@ def predict_depression_severity(data):
     for key in keys:
         if isinstance(data[key], str):
             options = form_details[key]["options"]
-            option_index = options.index(data[key])
+            option_index = options.index(data[key]) + 1
+
+            if key == "race":
+                option_index *= 10
 
             data[key] = option_index
 

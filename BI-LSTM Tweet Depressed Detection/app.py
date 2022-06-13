@@ -70,7 +70,7 @@ if __name__ == '__main__':
     tokenizer.fit_on_texts(df['text'])
 
     dass_model = pickle.load(
-        open("../models/dass_demography_lr_pipe_09062022.pkl", 'rb'))
+        open("../models/dass_demography_lr_pipe_13062022.pkl", 'rb'))
 
     app.run()
     # Use the debug option below if you want to have live reloading when making changes.
