@@ -47,3 +47,9 @@ This part of the assignment makes use of the public [Depression Anxiety Stress S
    cd app
    streamlit run app.py
    ```
+
+### Contributors:
+- Azri Anwar [Azri's Github](https://github.com/nepulepu)
+- Tengku Naim [Tengku's Github](https://github.com/tengznaim)
+- Khairol Hazeeq [Khairol's Github](https://github.com/kerolzeeq)
+- Afiq Irfan [Afiq's Github](https://github.com/Fiquee)
